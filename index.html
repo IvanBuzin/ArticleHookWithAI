@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    #root {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+<main id="root">
+  <button type="button" onclick="streamGeneration('smart-goals')">SMART Goals</button>
+  <button type="button" onclick="streamGeneration('daily-routines-for-productive-people')">Daily Routines and Habits of Productive People</button>
+  <button type="button" onclick="streamGeneration('how-to-get-on-the-forbes-30-under-30')">How to get on the Forbes 30 under 30 list</button>
+  
+</main>
+<script>
+  async function streamGeneration(slug) {
+    const rootEl = document.querySelector('#root');
+    rootEl.textContent = "Loading...";
+    
+    try {
+      const response = await fetch(`/stream/${slug}`);     
+    if (!response.ok) {
+      const data = await response.json();
+
+      throw data;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    rootEl.textContent = "";
+    
+    let content = "";
+    
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      content += decoder.decode(value, { stream: true });
+    }
+    
+      const hook = createHook(content);
+      rootEl.textContent = hook;
+    } catch (error) {
+    rootEl.textContent = "An error occurred: " + error.message;
+    }
+  }
+    function createHook(articleContent) {
+      return `${articleContent}   "Every morning when I open my eyes, the first thought that crosses my mind is how I can become even more productive. The secrets of successful people seemed unattainable until I tried these simple yet effective morning rituals. From cold showers to journaling – each step has been a revolution in my life." **Ivan Buzin**`;
+    }
+</script>
+</body>
+</html>
